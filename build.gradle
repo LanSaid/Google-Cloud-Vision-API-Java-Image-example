@@ -1,0 +1,30 @@
+group 'com.study.vm'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'com.google.apis:google-api-services-vision:v1-rev15-1.22.0'
+    compile 'com.google.apis:google-api-services-oauth2:v2-rev110-1.22.0'
+    compile 'com.google.api-client:google-api-client:1.19.1'
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'GVisionQuickstart.java'
+    }
+
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
