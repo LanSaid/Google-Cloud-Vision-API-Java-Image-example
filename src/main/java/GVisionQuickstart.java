@@ -31,6 +31,8 @@ public class GVisionQuickstart {
     /** Application name. */
     private static final String APPLICATION_NAME = "Robot_test_1";
 
+    private static final String IMAGES_PATH = "IMAGES_PATH";
+
     private static final int MAX_LABELS = 3;
 
        /** Global instance of the {@link FileDataStoreFactory}. */
@@ -50,10 +52,10 @@ public class GVisionQuickstart {
             System.err.printf("\tjava %s imagePath\n", GVisionQuickstart.class.getCanonicalName());
             System.exit(1);
         }
-        Path imagePath = Paths.get(args[0]);
+        String imagePath = args[0];
 
         GVisionQuickstart app = new GVisionQuickstart(getVisionService());
-        printLabels(System.out, imagePath, app.labelImage(imagePath, MAX_LABELS));
+        printLabels(System.out, app.labelImage(imagePath, MAX_LABELS));
     }
     public static void printLabels(PrintStream out, Path imagePath, List<EntityAnnotation> labels) {
         out.printf("Labels for image %s:\n", imagePath);
@@ -84,8 +86,14 @@ public class GVisionQuickstart {
         this.vision = vision;
     }
 
-    public List<EntityAnnotation> labelImage(Path path, int maxResults) throws IOException {
+    public List <EntityAnnotation> labelImage(Path path, int maxResults) throws IOException {
         // [START construct_request]
+        ListFilesUtils listFile = new ListFilesUtils(IMAGES_PATH);
+
+        for (int i = 0; i < listFile.listFileNames.size(); i++) {
+
+
+
         byte[] data = Files.readAllBytes(path);
 
         AnnotateImageRequest request =
@@ -95,6 +103,8 @@ public class GVisionQuickstart {
                                 new Feature()
                                         .setType("LABEL_DETECTION")
                                         .setMaxResults(maxResults)));
+        long startTime = System.currentTimeMillis();
+
         Vision.Images.Annotate annotate =
                 vision.images()
                         .annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
@@ -112,8 +122,13 @@ public class GVisionQuickstart {
                             ? response.getError().getMessage()
                             : "Unknown error getting image annotations");
         }
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println("Total elapsed http request/response time in milliseconds: " + elapsedTime);
+
         return response.getLabelAnnotations();
         // [END parse_response]
+
+        }
     }
 }
 
