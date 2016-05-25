@@ -31,7 +31,7 @@ public class GVisionQuickstart {
     /** Application name. */
     private static final String APPLICATION_NAME = "Robot_test_1";
 
-    private static final String IMAGES_PATH = "C:\\Аленушка\\Для Вовыша\\study\\data";
+    private static final String IMAGES_PATH = "IMAGES_PATH";
 
     private static final int MAX_LABELS = 3;
 
