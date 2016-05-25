@@ -31,7 +31,7 @@ public class GVisionQuickstart {
     /** Application name. */
     private static final String APPLICATION_NAME = "Robot_test_1";
 
-    private static final String IMAGES_PATH = "IMAGES_PATH";
+    private static final String IMAGES_PATH = "C:\\Аленушка\\Для Вовыша\\study\\data";
 
     private static final int MAX_LABELS = 3;
 
@@ -52,10 +52,11 @@ public class GVisionQuickstart {
             System.err.printf("\tjava %s imagePath\n", GVisionQuickstart.class.getCanonicalName());
             System.exit(1);
         }
-        String imagePath = args[0];
+        Path imagePath = Paths.get(args[0]);
 
         GVisionQuickstart app = new GVisionQuickstart(getVisionService());
-        printLabels(System.out, app.labelImage(imagePath, MAX_LABELS));
+
+        printLabels(System.out, imagePath, app.labelImage(imagePath, MAX_LABELS));
     }
     public static void printLabels(PrintStream out, Path imagePath, List<EntityAnnotation> labels) {
         out.printf("Labels for image %s:\n", imagePath);
@@ -86,49 +87,67 @@ public class GVisionQuickstart {
         this.vision = vision;
     }
 
-    public List <EntityAnnotation> labelImage(Path path, int maxResults) throws IOException {
-        // [START construct_request]
+
+    /**
+     * Gets up to {@code maxResults} text annotations for images stored at {@code paths}.
+     */
+    public ImmutableList<EntityAnnotation> labelImage(Path path, int maxResults) {
+        ImmutableList.Builder<AnnotateImageRequest> requests = ImmutableList.builder();
         ListFilesUtils listFile = new ListFilesUtils(IMAGES_PATH);
+        listFile.listFiles();
+        try {
 
-        for (int i = 0; i < listFile.listFileNames.size(); i++) {
+            for (int i = 0; i < listFile.listFileNames.size(); i++) {
+                 // System.out.println(listFile.listFileNames.get(i));
+                //
+                Path imgPath = Paths.get((String) listFile.listFileNames.get(i));
 
+                byte[] data;
+                data = Files.readAllBytes(imgPath);
+                requests.add(
+                        new AnnotateImageRequest()
+                                .setImage(new Image().encodeContent(data))
+                                .setFeatures(ImmutableList.of(
+                                        new Feature()
+                                                .setType("LABEL_DETECTION")
+                                                .setMaxResults(MAX_LABELS))));
+            }
+            long startTime = System.currentTimeMillis();
+            Vision.Images.Annotate annotate =
+                    vision.images()
+                            .annotate(new BatchAnnotateImagesRequest().setRequests(requests.build()));
+            // Due to a bug: requests to Vision API containing large images fail when GZipped.
+            annotate.setDisableGZipContent(true);
+            BatchAnnotateImagesResponse batchResponse = annotate.execute();
+            assert batchResponse.getResponses().size() == listFile.listFileNames.size();
+            long elapsedTime = System.currentTimeMillis() - startTime;
 
+            System.out.println("Total elapsed http request/response time in milliseconds: " + elapsedTime);
 
-        byte[] data = Files.readAllBytes(path);
-
-        AnnotateImageRequest request =
-                new AnnotateImageRequest()
-                        .setImage(new Image().encodeContent(data))
-                        .setFeatures(ImmutableList.of(
-                                new Feature()
-                                        .setType("LABEL_DETECTION")
-                                        .setMaxResults(maxResults)));
-        long startTime = System.currentTimeMillis();
-
-        Vision.Images.Annotate annotate =
-                vision.images()
-                        .annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
-        // Due to a bug: requests to Vision API containing large images fail when GZipped.
-        // annotate.setDisableGZipContent(true);
-        // [END construct_request]
-
-        // [START parse_response]
-        BatchAnnotateImagesResponse batchResponse = annotate.execute();
-        assert batchResponse.getResponses().size() == 1;
-        AnnotateImageResponse response = batchResponse.getResponses().get(0);
-        if (response.getLabelAnnotations() == null) {
-            throw new IOException(
-                    response.getError() != null
-                            ? response.getError().getMessage()
-                            : "Unknown error getting image annotations");
-        }
-        long elapsedTime = System.currentTimeMillis() - startTime;
-        System.out.println("Total elapsed http request/response time in milliseconds: " + elapsedTime);
-
-        return response.getLabelAnnotations();
-        // [END parse_response]
-
+            ImmutableList.Builder<EntityAnnotation> output = ImmutableList.builder();
+            for (int i = 0; i < listFile.listFileNames.size(); i++) {
+                Path imagespath = Paths.get((String) listFile.listFileNames.get(i));
+                AnnotateImageResponse response = batchResponse.getResponses().get(i);
+                System.out.println(" "+response.getLabelAnnotations());
+             /*   output.add(
+                        labelImage.path(imagespath)
+                                .error(response.getError())
+                                .build());
+            */}
+            return output.build();
+        } catch (IOException ex) {
+            // Got an exception, which means the whole batch had an error.
+            ImmutableList.Builder<EntityAnnotation> output = ImmutableList.builder();
+            for (int i = 0; i < listFile.listFileNames.size(); i++) {
+                /*output.add(
+                        labelImage.builder()
+                                .path(path)
+                                .textAnnotations(ImmutableList.<EntityAnnotation>of())
+                                .build());
+           */ }
+            return output.build();
         }
     }
+
 }
 

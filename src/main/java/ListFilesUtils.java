@@ -11,7 +11,7 @@ public class ListFilesUtils {
 
     public ArrayList listFileNames = new ArrayList<String>();
 
-    public void listFiles(String DIRECTORY_NAME) {
+    public void listFiles() {
 
         File directory = new File(DIRECTORY_NAME);
         File[] fList = directory.listFiles();
@@ -25,12 +25,13 @@ public class ListFilesUtils {
         for (int i = 0; i < this.listFileNames.size(); i++) {
             items = items + this.listFileNames.get(i) + " ";
         }
-        System.out.println(" "+ items);
+
     }
 
     public ListFilesUtils (String pathToImages) {
         DIRECTORY_NAME = pathToImages;
     }
+
 
 }
 
