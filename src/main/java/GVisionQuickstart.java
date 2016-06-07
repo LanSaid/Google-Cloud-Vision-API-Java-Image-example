@@ -33,8 +33,7 @@ public class GVisionQuickstart {
     /** Application name. */
 
     private static final String APPLICATION_NAME = "Robot_test_1";
-    private static final String IMAGES_PATH = "IMAGES_PATH";
-    private static final int MAX_LABELS = 3;
+    private static final int MAX_LABELS = 5;
     private final Vision vision;
 
     public GVisionQuickstart(Vision vision) {
@@ -48,15 +47,16 @@ public class GVisionQuickstart {
             System.err.printf("\tjava %s imagePath\n", GVisionQuickstart.class.getCanonicalName());
             System.exit(1);
         }
-        Path imagePath = Paths.get(args[0]);
+        String imagePath = args[0];
 
         GVisionQuickstart app = new GVisionQuickstart(getVisionService());
 
         printLabels(System.out, imagePath, app.labelImage(imagePath, MAX_LABELS));
     }
 
-    private static void printLabels(PrintStream out, Path imagePath, List<EntityAnnotation> labels) {
-        out.printf("Labels for image %s:\n", imagePath);
+    private static void printLabels(PrintStream out, String imagePath, List<EntityAnnotation> labels) {
+        Path imagesPath = Paths.get(imagePath);
+        out.printf("Labels for image %s:\n", imagesPath);
         for (EntityAnnotation label : labels) {
             out.printf(
                     "\t%s (score: %.3f)\n",
@@ -76,9 +76,9 @@ public class GVisionQuickstart {
                 .build();
     }
 
-    public ImmutableList<EntityAnnotation> labelImage(Path path, int maxResults) throws IOException {
+    public ImmutableList<EntityAnnotation> labelImage(String path, int maxResults) throws IOException {
         ImmutableList.Builder<AnnotateImageRequest> requests = ImmutableList.builder();
-        ListFilesUtils listFile = new ListFilesUtils(IMAGES_PATH);
+        ListFilesUtils listFile = new ListFilesUtils(path);
         listFile.listFiles();
 
         try {
