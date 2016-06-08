@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Scanner;
 
 @SuppressWarnings("serial")
 
@@ -41,13 +42,20 @@ public class GVisionQuickstart {
     }
 
     public static void main(String[] args) throws IOException, GeneralSecurityException {
+        String name;
         if (args.length != 1) {
-            System.err.println("Missing imagePath argument.");
-            System.err.println("Usage:");
-            System.err.printf("\tjava %s imagePath\n", GVisionQuickstart.class.getCanonicalName());
-            System.exit(1);
+            Scanner in = new Scanner(System.in);
+            System.out.print("Path to image: ");
+            name = in.nextLine();
+            if (name.isEmpty()) {
+                System.err.println("Missing imagePath argument.");
+                System.err.println("Usage:");
+                System.err.printf("\tjava %s imagePath\n", GVisionQuickstart.class.getCanonicalName());
+                System.exit(1);
+            }
         }
-        String imagePath = args[0];
+
+        String imagePath = args[0].isEmpty() ? args[0] : name;
 
         GVisionQuickstart app = new GVisionQuickstart(getVisionService());
 
@@ -111,6 +119,7 @@ public class GVisionQuickstart {
 
             long elapsedTime = System.currentTimeMillis() - startTime;
             System.out.println("Total elapsed http request/response time in milliseconds: " + elapsedTime);
+            FileWorker.write("log.txt", "quan images " + listFile.listFileNames.size() + "Total elapsed http request/response time in milliseconds: " + elapsedTime);
             ImmutableList.Builder<EntityAnnotation> output = ImmutableList.builder();
             for (int i = 0; i < listFile.listFileNames.size(); i++) {
                 AnnotateImageResponse response = batchResponse.getResponses().get(i);

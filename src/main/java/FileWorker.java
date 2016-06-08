@@ -2,10 +2,8 @@
  * Created by АленкаиВова on 08.06.2016.
  */
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.Date;
 
 
 public class FileWorker {
@@ -17,11 +15,12 @@ public class FileWorker {
                 file.createNewFile();
             }
 
-            PrintWriter out = new PrintWriter(file.getAbsoluteFile());
+
+            FileWriter out = new FileWriter(file.getAbsoluteFile(), true);
 
             try {
-
-                out.print(text);
+                Date now = new Date();
+                out.append("\n" + now + "" + text);
             } finally {
                 out.close();
             }
