@@ -20,7 +20,7 @@ public class FileWorker {
 
             try {
                 Date now = new Date();
-                out.append("\n" + now + "" + text);
+                out.append("\n" + now + " " + text);
             } finally {
                 out.close();
             }

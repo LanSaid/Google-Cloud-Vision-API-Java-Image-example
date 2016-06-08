@@ -42,7 +42,7 @@ public class GVisionQuickstart {
     }
 
     public static void main(String[] args) throws IOException, GeneralSecurityException {
-        String name;
+        String name = null;
         if (args.length != 1) {
             Scanner in = new Scanner(System.in);
             System.out.print("Path to image: ");
@@ -55,7 +55,7 @@ public class GVisionQuickstart {
             }
         }
 
-        String imagePath = args[0].isEmpty() ? args[0] : name;
+        String imagePath = !args[0].isEmpty() ? args[0] : name;
 
         GVisionQuickstart app = new GVisionQuickstart(getVisionService());
 
@@ -119,10 +119,11 @@ public class GVisionQuickstart {
 
             long elapsedTime = System.currentTimeMillis() - startTime;
             System.out.println("Total elapsed http request/response time in milliseconds: " + elapsedTime);
-            FileWorker.write("log.txt", "quan images " + listFile.listFileNames.size() + "Total elapsed http request/response time in milliseconds: " + elapsedTime);
+            FileWorker.write("log.txt", "quan images " + listFile.listFileNames.size() + " Total elapsed http request/response time in milliseconds: " + elapsedTime);
             ImmutableList.Builder<EntityAnnotation> output = ImmutableList.builder();
             for (int i = 0; i < listFile.listFileNames.size(); i++) {
                 AnnotateImageResponse response = batchResponse.getResponses().get(i);
+                FileWorker.write("log.txt", " " + batchResponse.getResponses().get(i));
                 System.out.println(" "+response.getLabelAnnotations());
             }
             return output.build();
