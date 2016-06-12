@@ -10,7 +10,7 @@ import org.opencv.core.Core;
 /**
  * args[0] = path to folder with images for detecting
  * 
- * @author SBT-Metenev-VV
+ * @author Metenev-VV
  * @version 0.1
  * @since 0.1
  */
