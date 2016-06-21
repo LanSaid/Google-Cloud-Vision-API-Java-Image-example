@@ -24,14 +24,24 @@ public class ImageDetector {
 	
 	
 	public static void main(String[] args) throws IOException {
+		String imagePath = new String();
+		
 		if (args.length == 0) {
-			System.err.println("Missing imagePath argument");
-			System.exit(1);
+			Scanner in = new Scanner (System.in);
+			System.out.print("Input path to image directory or file name: ");
+			imagePath = in.nextLine();
+			if (imagePath.isEmpty()) {
+				System.err.println("Missing imagePath argument");
+				System.exit(1);
+			}
+			
 		}
+		
 		//Start
-		String imagePath = args[0]; 
+		Path imagesPath = (args.length == 0) ? Paths.get(imagePath) : Paths.get(args[0]); 
+		
 		System.out.println("Hello, OpenCV");
-		System.out.printf("\nPath to image: %s ", imagePath);
+		System.out.printf("\nPath to image: %s ", imagesPath);
 
 	    // Load the native library.
 	    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
